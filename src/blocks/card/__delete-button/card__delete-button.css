@@ -1,0 +1,29 @@
+.card__delete-button {
+  position: absolute;
+  background-image: url(../../../images/trash_icon.svg);
+  width: 18px;
+  height: 19px;
+  top: 20px;
+  right: 20px;
+  background-size: contain;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+  padding: 0;
+  outline: none;
+  opacity: 1;
+  transition: opacity .1s linear;
+  cursor: pointer;
+  display: none;
+}
+.card__delete-button:hover {
+  opacity: 0.6;
+}
+
+@media screen and (max-width: 589px) {
+  .popup__close {
+    width: 20px;
+    height: 20px;
+    right: 0;
+  }
+}
