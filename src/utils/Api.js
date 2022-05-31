@@ -11,14 +11,14 @@ class Api {
   getProfile(){
     return fetch(`${this._baseUrl}/users/me`,{
       headers: this._headers
-    }).then(this._checkResponse)
+    }).then(this.checkResponse)
     .catch(console.log)
   }
 
   getInitialCards() {
     return fetch(`${this._baseUrl}/cards`,{
       headers: this._headers
-    }).then(this._checkResponse)
+    }).then(this.checkResponse)
     .catch(console.log)
   }
 
@@ -30,7 +30,7 @@ class Api {
         name,
         about
       })
-    }).then(this._checkResponse)
+    }).then(this.checkResponse)
     .catch(console.log)
   }
 
@@ -42,7 +42,7 @@ class Api {
         name,
         link
       })
-    }).then(this._checkResponse)
+    }).then(this.checkResponse)
     .catch(console.log)
   }
 
@@ -50,7 +50,7 @@ class Api {
     return fetch(`${this._baseUrl}/cards/${id}`,{
       method: "DELETE",
       headers: this._headers,
-    }).then(this._checkResponse)
+    }).then(this.checkResponse)
     .catch(console.log)
   }
 
@@ -58,7 +58,7 @@ class Api {
     return fetch(`${this._baseUrl}/cards/${id}/likes`,{
       method: "DELETE",
       headers: this._headers,
-    }).then(this._checkResponse)
+    }).then(this.checkResponse)
     .catch(console.log)
   }
 
@@ -66,7 +66,7 @@ class Api {
     return fetch(`${this._baseUrl}/cards/${id}/likes`,{
       method: "PUT",
       headers: this._headers,
-    }).then(this._checkResponse)
+    }).then(this.checkResponse)
     .catch(console.log)
   }
 
@@ -77,7 +77,7 @@ class Api {
       body: JSON.stringify({
         avatar,
       })
-    }).then(this._checkResponse)
+    }).then(this.checkResponse)
     .catch(console.log)
   }
 
@@ -85,7 +85,7 @@ class Api {
     return isLiked ? this.addLike(id) : this.deleteLike(id);
   }
 
-  _checkResponse(res) {
+  checkResponse(res) {
     if (res.ok) {
       return res.json()}
     else {

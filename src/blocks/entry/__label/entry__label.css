@@ -1,0 +1,5 @@
+.entry__label {
+  display: flex;
+  flex-direction: column;
+  border: none;
+}

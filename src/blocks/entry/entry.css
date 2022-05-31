@@ -1,0 +1,7 @@
+.entry {
+  display: flex;
+  align-items: center;
+  background-color: #000;
+  justify-content: center;
+  height: 100%;
+}

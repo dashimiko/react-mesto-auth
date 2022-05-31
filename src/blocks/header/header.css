@@ -4,6 +4,10 @@
   margin: 0 auto;
   padding-bottom: 41px;
   padding-top: 45px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
 @media screen and (max-width: 900px) {

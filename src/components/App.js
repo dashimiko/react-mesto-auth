@@ -10,6 +10,15 @@ import ImagePopup from './ImagePopup';
 
 import {api} from '../utils/Api'
 import {CurrentUserContext} from "../contexts/CurrentUserContext";
+import {Route, Switch, Redirect,Link} from 'react-router-dom';
+import Login from './Login.js';
+import Register from './Register.js';
+import ProtectedRoute from './ProtectedRoute.js';
+import InfoTooltip from './InfoTooltip.js';
+
+import * as MestoAuth from '../utils/MestoAuth'
+import { useHistory } from "react-router-dom";
+
 
 function App() {
 
@@ -20,6 +29,13 @@ function App() {
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
+
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  const [isInfoTooltipPopupOpen, setIsInfoTooltipPopupOpen] = useState(false);
+  const [UserTooltipInfo, setUserTooltipInfo] = useState({ url: "", title: "" });
+
+  const history = useHistory();
 
   useEffect(() => {
     Promise.all([api.getProfile(), api.getInitialCards()])
@@ -37,6 +53,10 @@ function App() {
     setIsEditProfilePopupOpen(true);
   }
 
+  function handleInfoTooltipPopupClick () {
+    setIsInfoTooltipPopupOpen(true)
+  }
+
   function handleAddPlaceClick () {
     setIsAddPlacePopupOpen(true)
   }
@@ -49,6 +69,7 @@ function App() {
     setIsEditProfilePopupOpen(null);
     setIsAddPlacePopupOpen(null);
     setIsEditAvatarPopupOpen(null);
+    setIsInfoTooltipPopupOpen(null)
     setSelectedCard(null)
   }
 
@@ -86,22 +107,71 @@ function App() {
     .then(() => {setCards((state) => state.filter((с) => с._id !== card._id))})
     .catch((err) => console.log(err))}
 
+    const handleRegister = ({ email, password }) => {
+      return MestoAuth
+        .register(email, password)
+        .then((res) => {
+          if (res) {
+            handleInfoTooltipPopupClick();
+            history.push("/sign-in");
+            setUserTooltipInfo({
+              url: "success",
+              title: "Вы успешно зарегистрировались!",
+            });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          handleInfoTooltipPopupClick();
+          setUserTooltipInfo({
+            url: "fail",
+            title: "Что-то пошло не так! Попробуйте ещё раз.",
+          });
+        });
+    };
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
+      <Switch>
 
-      <Header />
-      <Main
-      cards={cards}
-      onEditProfile={handleEditProfileClick}
-      onAddPlace={handleAddPlaceClick}
-      onEditAvatar={handleEditAvatarClick}
-      onCardClick = {handleCardClick}
-      onCardLike = {handleCardLike}
-      onCardDelete= {handleCardDelete}
-      />
+      <Route path="/sign-in">
+        <Header>
+          <a className ="header__link" href="/sign-up">Регистрация</a>
+        </Header>
+        <Login  />
+      </Route>
 
-      <Footer />
+      <Route path="/sign-up">
+        <Header>
+          <a className ="header__link" href="/sign-in">Войти</a>
+        </Header>
+        <Register handleRegister={handleRegister} />
+      </Route>
+
+      <ProtectedRoute exact path="/" loggedIn={loggedIn}>
+        <Header />
+        <Main
+        cards={cards}
+        onEditProfile={handleEditProfileClick}
+        onAddPlace={handleAddPlaceClick}
+        onEditAvatar={handleEditAvatarClick}
+        onCardClick = {handleCardClick}
+        onCardLike = {handleCardLike}
+        onCardDelete = {handleCardDelete}/>
+        <Footer />
+      </ProtectedRoute>
+
+      <Route  path="/">
+        {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
+      </Route>
+
+      </Switch>
+
+      <InfoTooltip
+      onClose={closeAllPopups}
+      data={UserTooltipInfo}
+      isOpen={isInfoTooltipPopupOpen}/>
 
       <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser}/>
 
