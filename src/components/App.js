@@ -108,27 +108,10 @@ function App() {
     .catch((err) => console.log(err))}
 
     const handleRegister = ({ email, password }) => {
-      return MestoAuth
-        .register(email, password)
-        .then((res) => {
-          if (res) {
-            handleInfoTooltipPopupClick();
-            history.push("/sign-in");
-            setUserTooltipInfo({
-              url: "success",
-              title: "Вы успешно зарегистрировались!",
-            });
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          handleInfoTooltipPopupClick();
-          setUserTooltipInfo({
-            url: "fail",
-            title: "Что-то пошло не так! Попробуйте ещё раз.",
-          });
-        });
-    };
+      return MestoAuth.register(email, password).then(() => {
+        history.push('/sign-in');
+      });
+    }
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
