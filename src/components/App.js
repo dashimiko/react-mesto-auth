@@ -37,13 +37,18 @@ function App() {
 
   const history = useHistory();
 
+  const [userData, setUserData] = useState();
+
+  const [ email, setEmail ] = useState('');
+
   useEffect(() => {
+    if (loggedIn) {
     Promise.all([api.getProfile(), api.getInitialCards()])
-      .then(([profileData, card]) => {
-        setCurrentUser(profileData);
+      .then(([userData, card]) => {
+        setCurrentUser(userData);
         setCards(card);
       }).catch((err) => console.log(err))
-    },[]);
+    }},[loggedIn]);
 
   function handleEditAvatarClick () {
     setIsEditAvatarPopupOpen(true)
@@ -107,11 +112,59 @@ function App() {
     .then(() => {setCards((state) => state.filter((с) => с._id !== card._id))})
     .catch((err) => console.log(err))}
 
-    const handleRegister = ({ email, password }) => {
-      return MestoAuth.register(email, password).then(() => {
-        history.push('/sign-in');
-      });
+  const handleRegister = ({email, password}) => {
+    return MestoAuth.register(email, password)
+      .then((res) => {
+        if (res) {
+          handleInfoTooltipPopupClick();
+          history.push("/sign-in");
+          setUserTooltipInfo({
+            url: "success",
+            title: "Вы успешно зарегистрировались!",
+          })
+        }})
+      .catch((err) => {
+        console.log(err);
+        handleInfoTooltipPopupClick();
+        setUserTooltipInfo({
+          url: "fail",
+          title: "Что-то пошло не так! Попробуйте ещё раз."
+        })
+      })
     }
+
+  const handleLogin = ({ email, password }) => {
+    return MestoAuth.authorize(email, password).then((res) => {
+      if (res.token) {
+        localStorage.setItem('token', res.token);
+        tokenCheck()
+        console.log('успех')
+      }})
+    }
+
+
+  const tokenCheck = () => {
+  const token = localStorage.getItem('token');
+
+  if(token) {
+    MestoAuth.getContent(token).then((res) => {
+    setEmail(res.data.email)
+    setLoggedIn(true);
+    history.push('/')
+    console.log('успех')
+   })
+  }
+  }
+
+  useEffect(() => {
+    tokenCheck();
+  }, []);
+
+  const signOut = () => {
+    localStorage.removeItem('token')
+    setLoggedIn(false);
+    setEmail('');
+  };
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
@@ -122,7 +175,7 @@ function App() {
         <Header>
           <a className ="header__link" href="/sign-up">Регистрация</a>
         </Header>
-        <Login  />
+        <Login handleLogin={handleLogin} tokenCheck={tokenCheck}/>
       </Route>
 
       <Route path="/sign-up">
@@ -132,8 +185,9 @@ function App() {
         <Register handleRegister={handleRegister} />
       </Route>
 
-      <ProtectedRoute exact path="/" loggedIn={loggedIn}>
-        <Header />
+      <ProtectedRoute exact path="/"
+      loggedIn={loggedIn}>
+        <Header onClick={signOut} userData={userData}/>
         <Main
         cards={cards}
         onEditProfile={handleEditProfileClick}
