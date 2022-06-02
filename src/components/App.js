@@ -1,4 +1,11 @@
 import React, {useState,useEffect} from 'react';
+import {Route, Switch, Redirect, Link, useHistory} from 'react-router-dom';
+
+import {api} from '../utils/Api'
+import * as MestoAuth from '../utils/MestoAuth'
+
+import {CurrentUserContext} from "../contexts/CurrentUserContext";
+
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -8,16 +15,10 @@ import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
 
-import {api} from '../utils/Api'
-import {CurrentUserContext} from "../contexts/CurrentUserContext";
-import {Route, Switch, Redirect,Link} from 'react-router-dom';
 import Login from './Login.js';
 import Register from './Register.js';
 import ProtectedRoute from './ProtectedRoute.js';
 import InfoTooltip from './InfoTooltip.js';
-
-import * as MestoAuth from '../utils/MestoAuth'
-import { useHistory } from "react-router-dom";
 
 
 function App() {
@@ -25,6 +26,9 @@ function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const [isInfoTooltipPopupOpen, setIsInfoTooltipPopupOpen] = useState(false);
+  const [isEntranceCompleted, setisEntranceCompleted] = useState(false);
+
   const [selectedCard, setSelectedCard] = useState(null);
 
   const [currentUser, setCurrentUser] = useState({});
@@ -32,14 +36,13 @@ function App() {
 
   const [loggedIn, setLoggedIn] = useState(false);
 
-  const [isInfoTooltipPopupOpen, setIsInfoTooltipPopupOpen] = useState(false);
-  const [UserTooltipInfo, setUserTooltipInfo] = useState({ url: "", title: "" });
+  /*const [UserTooltipInfo, setUserTooltipInfo] = useState({ url: "", title: "" });*/
+
+  /*const [UserTooltipInfo, setUserTooltipInfo] = useState(null);*/
 
   const history = useHistory();
 
-  const [userData, setUserData] = useState();
-
-  const [ email, setEmail ] = useState('');
+  const [userData, setUserData] = useState('');
 
   useEffect(() => {
     if (loggedIn) {
@@ -118,18 +121,12 @@ function App() {
         if (res) {
           handleInfoTooltipPopupClick();
           history.push("/sign-in");
-          setUserTooltipInfo({
-            url: "success",
-            title: "Вы успешно зарегистрировались!",
-          })
+          setisEntranceCompleted(true);
         }})
       .catch((err) => {
         console.log(err);
         handleInfoTooltipPopupClick();
-        setUserTooltipInfo({
-          url: "fail",
-          title: "Что-то пошло не так! Попробуйте ещё раз."
-        })
+        setisEntranceCompleted(false);
       })
     }
 
@@ -142,28 +139,27 @@ function App() {
       }})
     }
 
-
   const tokenCheck = () => {
-  const token = localStorage.getItem('token');
-
-  if(token) {
-    MestoAuth.getContent(token).then((res) => {
-    setEmail(res.data.email)
-    setLoggedIn(true);
-    history.push('/')
-    console.log('успех')
-   })
+    const token = localStorage.getItem('token')
+    if(token) {
+      MestoAuth.getContent(token).then((res) => {
+        setUserData(res.data.email)
+        setLoggedIn(true)
+        history.push('/')
+        console.log('успех')
+      })
+    }
   }
-  }
 
-  useEffect(() => {
+  /*useEffect(() => {
     tokenCheck();
-  }, []);
+  }, []);*/
 
   const signOut = () => {
     localStorage.removeItem('token')
     setLoggedIn(false);
-    setEmail('');
+    setUserData('');
+    history.push('/sign-in');
   };
 
   return (
@@ -173,21 +169,25 @@ function App() {
 
       <Route path="/sign-in">
         <Header>
-          <a className ="header__link" href="/sign-up">Регистрация</a>
+          <Link to="/sign-up" className ="header__link">Регистрация</Link>
         </Header>
         <Login handleLogin={handleLogin} tokenCheck={tokenCheck}/>
       </Route>
 
       <Route path="/sign-up">
         <Header>
-          <a className ="header__link" href="/sign-in">Войти</a>
+          <Link to="/sign-in" className ="header__link">Войти</Link>
         </Header>
         <Register handleRegister={handleRegister} />
       </Route>
 
-      <ProtectedRoute exact path="/"
-      loggedIn={loggedIn}>
-        <Header onClick={signOut} userData={userData}/>
+      <ProtectedRoute exact path="/" loggedIn={loggedIn}>
+        <Header onClick={signOut} userData={userData}>
+          <div className ="header__user-container">
+            <p className ="header__link header__email">{userData}</p>
+            <Link to="/sign-in" className ="header__link">Выйти</Link>
+          </div>
+        </Header>
         <Main
         cards={cards}
         onEditProfile={handleEditProfileClick}
@@ -205,10 +205,7 @@ function App() {
 
       </Switch>
 
-      <InfoTooltip
-      onClose={closeAllPopups}
-      data={UserTooltipInfo}
-      isOpen={isInfoTooltipPopupOpen}/>
+      <InfoTooltip onClose={closeAllPopups} isEntrance={isEntranceCompleted} isOpen={isInfoTooltipPopupOpen}/>
 
       <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser}/>
 

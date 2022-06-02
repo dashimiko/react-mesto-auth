@@ -43,7 +43,7 @@ const Register = (props) => {
             <span className="password-error popup__error"></span>
           </label>
           <button className="entry__submit-button login__entry-button" type="submit">Зарегистрироваться</button>
-          <Link to="Login" className="entry__login-link">Уже зарегистрированы? Войти</Link>
+          <Link to="/sign-in" className="entry__login-link">Уже зарегистрированы? Войти</Link>
         </form>
       </div>
     </section>
