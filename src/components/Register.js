@@ -19,7 +19,6 @@ const Register = (props) => {
     e.preventDefault();
     let {email, password} = formParams;
     props.handleRegister({email, password})
-    .catch((err) => console.log(err))
   };
 
   return (
@@ -34,7 +33,7 @@ const Register = (props) => {
             <span className="email-error popup__error"></span>
           </label>
           <label className="entry__label login__label">
-            <input name="password" className="entry__input entry__input_password login__input login__input_password" placeholder="Пароль"
+            <input type="password" name="password" className="entry__input entry__input_password login__input login__input_password" placeholder="Пароль"
             value={formParams.password}
             onChange={handleChange}/>
             <span className="password-error popup__error"></span>

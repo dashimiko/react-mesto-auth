@@ -1,4 +1,4 @@
-import React, {useState,useEffect} from 'react';
+import {useState,useEffect} from 'react';
 import {Route, Switch, Redirect, Link, useHistory} from 'react-router-dom';
 
 import {api} from '../utils/Api'
@@ -20,12 +20,12 @@ import Register from './Register.js';
 import ProtectedRoute from './ProtectedRoute.js';
 import InfoTooltip from './InfoTooltip.js';
 
-
 function App() {
 
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+
   const [isInfoTooltipPopupOpen, setIsInfoTooltipPopupOpen] = useState(false);
   const [isEntranceCompleted, setisEntranceCompleted] = useState(false);
 
@@ -33,6 +33,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState({});
   const [userData, setUserData] = useState('');
+  const [InfoTooltipText, setInfoTooltipText] = useState('');
   const [cards, setCards] = useState([]);
 
   const history = useHistory();
@@ -113,11 +114,13 @@ function App() {
           handleInfoTooltipPopupClick();
           history.push("/sign-in");
           setisEntranceCompleted(true);
+          setInfoTooltipText('Вы успешно зарегистрировались!')
         }})
       .catch((err) => {
         console.log(err);
         handleInfoTooltipPopupClick();
         setisEntranceCompleted(false);
+        setInfoTooltipText('Что-то пошло не так! Попробуйте ещё раз.')
       })
     }
 
@@ -127,6 +130,12 @@ function App() {
         localStorage.setItem('token', res.token);
         tokenCheck()
       }})
+      .catch((err) => {
+        console.log(err);
+        handleInfoTooltipPopupClick();
+        setisEntranceCompleted(false);
+        setInfoTooltipText('Что-то пошло не так! Попробуйте ещё раз.')
+      })
     }
 
   const tokenCheck = () => {
@@ -136,6 +145,9 @@ function App() {
         setUserData(res.data.email)
         setLoggedIn(true)
         history.push('/')
+      })
+      .catch((err) => {
+        console.log(err);
       })
     }
   }
@@ -194,7 +206,7 @@ function App() {
 
       </Switch>
 
-      <InfoTooltip onClose={closeAllPopups} isEntrance={isEntranceCompleted} isOpen={isInfoTooltipPopupOpen}/>
+      <InfoTooltip onClose={closeAllPopups} isEntrance={isEntranceCompleted} isOpen={isInfoTooltipPopupOpen} text={InfoTooltipText}/>
 
       <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser}/>
 
