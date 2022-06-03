@@ -9,10 +9,12 @@ export default function InfoTooltip({isOpen, onClose, isEntrance}) {
 
   return (
     <section className={`popup ${isOpen ? 'popup_opened' : ''}`}>
-      <div className="popup__container">
+      <div className="popup__container infoTooltip__container">
         <button onClick={onClose} className="popup__close popup__close_new-place" type="button"></button>
-        <img className="infoTooltip__pic" src={isEntrance ? completed : failed} alt={isEntrance ? completedText : failedText}></img>
-        <p className="infoTooltip__title">{isEntrance ? completedText : failedText}</p>
+        <div className="infoTooltip__box">
+          <img className="infoTooltip__pic" src={isEntrance ? completed : failed} alt={isEntrance ? completedText : failedText}></img>
+          <p className="infoTooltip__title">{isEntrance ? completedText : failedText}</p>
+        </div>
       </div>
     </section>
   );

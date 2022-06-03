@@ -30,19 +30,12 @@ function App() {
   const [isEntranceCompleted, setisEntranceCompleted] = useState(false);
 
   const [selectedCard, setSelectedCard] = useState(null);
-
+  const [loggedIn, setLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState({});
+  const [userData, setUserData] = useState('');
   const [cards, setCards] = useState([]);
 
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  /*const [UserTooltipInfo, setUserTooltipInfo] = useState({ url: "", title: "" });*/
-
-  /*const [UserTooltipInfo, setUserTooltipInfo] = useState(null);*/
-
   const history = useHistory();
-
-  const [userData, setUserData] = useState('');
 
   useEffect(() => {
     if (loggedIn) {
@@ -82,9 +75,7 @@ function App() {
   }
 
   function handleCardLike(card) {
-    // Снова проверяем, есть ли уже лайк на этой карточке
     const isLiked = card.likes.some((user) => user._id === currentUser._id);
-    // Отправляем запрос в API и получаем обновлённые данные карточки
     api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
       setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
   })}
@@ -96,7 +87,7 @@ function App() {
       closeAllPopups()})
     .catch((err) => console.log(err))}
 
-  function handleAddPlaceSubmit({ name, link }) {
+  function handleAddPlaceSubmit({name, link}) {
     api.addImage(name, link)
     .then(newCard => {
       setCards([newCard, ...cards]);
@@ -130,12 +121,11 @@ function App() {
       })
     }
 
-  const handleLogin = ({ email, password }) => {
+  const handleLogin = ({email, password}) => {
     return MestoAuth.authorize(email, password).then((res) => {
       if (res.token) {
         localStorage.setItem('token', res.token);
         tokenCheck()
-        console.log('успех')
       }})
     }
 
@@ -146,19 +136,18 @@ function App() {
         setUserData(res.data.email)
         setLoggedIn(true)
         history.push('/')
-        console.log('успех')
       })
     }
   }
 
-  /*useEffect(() => {
+  useEffect(() => {
     tokenCheck();
-  }, []);*/
+  }, []);
 
   const signOut = () => {
     localStorage.removeItem('token')
-    setLoggedIn(false);
     setUserData('');
+    setLoggedIn(false);
     history.push('/sign-in');
   };
 

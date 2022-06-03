@@ -7,8 +7,6 @@ const Register = (props) => {
     password: '',
   });
 
-  const [message, setMessage] = useState('');
-
   const handleChange = (e) => {
     const {name, value} = e.target;
     setFormParams((prev) => ({
@@ -19,10 +17,9 @@ const Register = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    let { email, password } = formParams;
-    props.handleRegister({ email, password }).catch(err => {
-      setMessage(err.message);
-    });
+    let {email, password} = formParams;
+    props.handleRegister({email, password})
+    .catch((err) => console.log(err))
   };
 
   return (
